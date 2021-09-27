@@ -1,7 +1,7 @@
 <template>
 
   <div class="card mt-4">
-    <div class="card-header">Publicado en {{thought.created_at }}<span v-if="thought.created_at !== thought.updated_at"> - Actualizado a {{ thought.updated_at }}</span> </div>
+    <div class="card-header">Publicado en {{thought.created_at | moment('d-m-YYYY h:mm a') }}<span v-if="thought.created_at !== thought.updated_at"> - Actualizado a {{ thought.updated_at | moment('d-m-YYYY h:mm a') }}</span> </div>
 
     <div class="card-body">
       <label for="text-thought"> {{ thought.description }}</label>
@@ -15,6 +15,7 @@
 </template>
 
 <script>
+Vue.use(require('vue-moment'));
 export default {
   props: ['thought'],
   mounted() {
