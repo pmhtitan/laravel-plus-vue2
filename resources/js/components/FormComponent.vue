@@ -37,7 +37,7 @@ export default {
       let post = {
         description: this.inputThought,
       };
-      this.description = "";
+      this.inputThought = '';
 
       axios.post("/thought", post).then((response) => {
         let thought = response.data;

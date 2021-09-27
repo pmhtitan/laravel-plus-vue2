@@ -2105,7 +2105,7 @@ __webpack_require__.r(__webpack_exports__);
       var post = {
         description: this.inputThought
       };
-      this.description = "";
+      this.inputThought = '';
       axios.post("/thought", post).then(function (response) {
         var thought = response.data;
 
@@ -2144,6 +2144,8 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
 
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
@@ -2167,6 +2169,12 @@ __webpack_require__.r(__webpack_exports__);
   methods: {
     addThought: function addThought(thought) {
       this.thoughts.push(thought);
+    },
+    updateThought: function updateThought(index, thought) {
+      this.thoughts[index] = thought;
+    },
+    deleteThought: function deleteThought(index) {
+      this.thoughts.splice(index, 1);
     }
   }
 });
@@ -2200,11 +2208,49 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
 Vue.use(__webpack_require__(/*! vue-moment */ "./node_modules/vue-moment/dist/vue-moment.js"));
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   props: ['thought'],
+  data: function data() {
+    return {
+      editMode: false
+    };
+  },
   mounted: function mounted() {
     console.log("Component mounted.");
+  },
+  computed: {
+    isDisable: function isDisable() {
+      if (this.editMode) {
+        return this.thought.description.length <= 0;
+      } else {
+        return false;
+      }
+    }
+  },
+  methods: {
+    updateThought: function updateThought() {
+      var _this = this;
+
+      axios.put("/thought/".concat(this.thought.id), this.thought).then(function (response) {
+        _this.editMode = false;
+        var thought = response.data;
+
+        _this.$emit('update', thought);
+      });
+    },
+    deleteThought: function deleteThought() {
+      var _this2 = this;
+
+      axios["delete"]("/thought/".concat(this.thought.id)).then(function () {
+        _this2.$emit('delete');
+      });
+    },
+    setEditMode: function setEditMode() {
+      this.editMode = true;
+    }
   }
 });
 
@@ -37982,10 +38028,24 @@ var render = function() {
       [
         _c("form-component", { on: { add: _vm.addThought } }),
         _vm._v(" "),
-        _vm._l(_vm.thoughts, function(thought) {
+        _vm._l(_vm.thoughts, function(thought, index) {
           return _c("thought-component", {
             key: thought.id,
-            attrs: { thought: thought }
+            attrs: { thought: thought },
+            on: {
+              update: function($event) {
+                var i = arguments.length,
+                  argsArray = Array(i)
+                while (i--) argsArray[i] = arguments[i]
+                return _vm.updateThought.apply(
+                  void 0,
+                  [index].concat(argsArray)
+                )
+              },
+              delete: function($event) {
+                return _vm.deleteThought(index)
+              }
+            }
           })
         })
       ],
@@ -38020,14 +38080,14 @@ var render = function() {
     _c("div", { staticClass: "card-header" }, [
       _vm._v(
         "Publicado en " +
-          _vm._s(_vm._f("moment")(_vm.thought.created_at, "d-m-YYYY h:mm a"))
+          _vm._s(_vm._f("moment")(_vm.thought.created_at, "d-M-YYYY h:mm a"))
       ),
       _vm.thought.created_at !== _vm.thought.updated_at
         ? _c("span", [
             _vm._v(
               " - Actualizado a " +
                 _vm._s(
-                  _vm._f("moment")(_vm.thought.updated_at, "d-m-YYYY h:mm a")
+                  _vm._f("moment")(_vm.thought.updated_at, "d-M-YYYY h:mm a")
                 )
             )
           ])
@@ -38035,26 +38095,77 @@ var render = function() {
     ]),
     _vm._v(" "),
     _c("div", { staticClass: "card-body" }, [
-      _c("label", { attrs: { for: "text-thought" } }, [
-        _vm._v(" " + _vm._s(_vm.thought.description))
-      ])
+      !_vm.editMode
+        ? _c("label", { attrs: { for: "text-thought" } }, [
+            _vm._v(" " + _vm._s(_vm.thought.description))
+          ])
+        : _c("input", {
+            directives: [
+              {
+                name: "model",
+                rawName: "v-model",
+                value: _vm.thought.description,
+                expression: "thought.description"
+              }
+            ],
+            staticClass: "form-control",
+            attrs: { type: "text", name: "thoughtEdit" },
+            domProps: { value: _vm.thought.description },
+            on: {
+              input: function($event) {
+                if ($event.target.composing) {
+                  return
+                }
+                _vm.$set(_vm.thought, "description", $event.target.value)
+              }
+            }
+          })
     ]),
     _vm._v(" "),
-    _vm._m(0)
+    _c("div", { staticClass: "card-footer" }, [
+      _vm.editMode
+        ? _c(
+            "button",
+            {
+              staticClass: "btn btn-success",
+              attrs: { type: "button", disabled: _vm.isDisable },
+              on: {
+                click: function($event) {
+                  return _vm.updateThought()
+                }
+              }
+            },
+            [_vm._v("Actualizar")]
+          )
+        : _c(
+            "button",
+            {
+              staticClass: "btn btn-secondary",
+              on: {
+                click: function($event) {
+                  return _vm.setEditMode()
+                }
+              }
+            },
+            [_vm._v("Editar")]
+          ),
+      _vm._v(" "),
+      _c(
+        "button",
+        {
+          staticClass: "btn btn-danger",
+          on: {
+            click: function($event) {
+              return _vm.deleteThought()
+            }
+          }
+        },
+        [_vm._v("Eliminar")]
+      )
+    ])
   ])
 }
-var staticRenderFns = [
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "card-footer" }, [
-      _c("button", { staticClass: "btn btn-secondary" }, [_vm._v("Editar")]),
-      _vm._v(" "),
-      _c("button", { staticClass: "btn btn-danger" }, [_vm._v("Eliminar")])
-    ])
-  }
-]
+var staticRenderFns = []
 render._withStripped = true
 
 

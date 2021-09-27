@@ -7,6 +7,11 @@ use App\Models\Thought;
 
 class ThoughtController extends Controller
 {
+ public function __construct()
+ {
+     $this->middleware('auth');
+ }
+
     /**
      * Display a listing of the resource.
      *
@@ -34,17 +39,6 @@ class ThoughtController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
-
-    /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -53,7 +47,12 @@ class ThoughtController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $thought = Thought::find($id);
+        $thought->description = $request->description;
+        $thought->save();
+
+        return $thought;
+        
     }
 
     /**
@@ -64,6 +63,7 @@ class ThoughtController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $thought = Thought::find($id);
+        $thought->delete();
     }
 }
